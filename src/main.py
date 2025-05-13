@@ -1,15 +1,18 @@
+import pandas as pd
+
 from src.reports import calculate_average_spending_by_weekday
 from src.services import filter_transactions_by_category_or_description
 from src.views import generate_filtered_json
-import pandas as pd
 
 df = pd.read_excel("data/operations.xlsx")
-operations_df = df.to_dict(orient='records')
+operations_df = df.to_dict(orient="records")
 
 
 def main():
     json_output = generate_filtered_json("2018-05-28 00:00:00")
-    found_transactions = filter_transactions_by_category_or_description(operations_df, "Рестораны")
+    found_transactions = filter_transactions_by_category_or_description(
+        operations_df, "Рестораны"
+    )
     weekday_spending = calculate_average_spending_by_weekday(df, "2018-05-18 00:00:00")
 
     print("=== JSON Report ===")
