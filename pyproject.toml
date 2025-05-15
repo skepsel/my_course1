@@ -23,14 +23,14 @@ flake8 = "^7.2.0"
 isort = "^6.0.1"
 mypy = "^1.15.0"
 
-[black]
+[tool.black]
 line-length = 119
 exclude = ".git"
 
-[isort]
+[tool.isort]
 line-length = 119
 
-[mypy]
+[tool.mypy]
 disallow_untyped_defs = true
 warn_return_any = true
 exclude = "venv"

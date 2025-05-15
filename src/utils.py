@@ -59,9 +59,7 @@ def filter_operations_by_date(time: str) -> List[Dict]:
     start_date = pd.to_datetime(start_date, dayfirst=True)
     end_date = pd.to_datetime(end_date, dayfirst=True)
     filtered_operations = [
-        op
-        for op in operations_df
-        if start_date <= pd.to_datetime(op["Дата операции"], dayfirst=True) <= end_date
+        op for op in operations_df if start_date <= pd.to_datetime(op["Дата операции"], dayfirst=True) <= end_date
     ]
     return filtered_operations
 
@@ -95,9 +93,7 @@ def extract_operation_details(operations: List[Dict]) -> Tuple[List, List, List]
         Tuple[List, List, List]: Кортеж списков с номерами карт, суммами операций и кэшбэком.
     """
     card_numbers = [op.get("Номер карты", "Неизвестно") for op in operations]
-    transaction_amounts = [
-        op.get("Сумма операции с округлением", 0) for op in operations
-    ]
+    transaction_amounts = [op.get("Сумма операции с округлением", 0) for op in operations]
     cashback_values = [op.get("Кэшбэк", 0) for op in operations]
     return card_numbers, transaction_amounts, cashback_values
 
@@ -112,9 +108,7 @@ def get_top_transactions(operations: List[Dict]) -> List[Dict]:
     Returns:
         List[Dict]: Список топ-5 транзакций.
     """
-    return sorted(
-        operations, key=lambda x: x["Сумма операции с округлением"], reverse=True
-    )[:5]
+    return sorted(operations, key=lambda x: x["Сумма операции с округлением"], reverse=True)[:5]
 
 
 def fetch_currency_and_stock_data(user_settings: str) -> Tuple[List, List]:
@@ -135,6 +129,9 @@ def fetch_currency_and_stock_data(user_settings: str) -> Tuple[List, List]:
     except FileNotFoundError:
         logging.error("Файл настроек не найден.")
         return currency_data, stock_data
+    except json.JSONDecodeError:
+        logging.error("Неверный формат JSON в файле настроек.")
+        return currency_data, stock_data
 
     currencies = ",".join(settings.get("user_currencies", []))
     currency_url = f"http://api.currencylayer.com/live?access_key={API_KEY_CUR_USD}&currencies={currencies}"
@@ -145,7 +142,7 @@ def fetch_currency_and_stock_data(user_settings: str) -> Tuple[List, List]:
         data_currency = response_currency.json()
         if "quotes" in data_currency:
             for currency in settings.get("user_currencies", []):
-                key = f"{currency}RUB"
+                key = f"USD{currency}" if currency != "USD" else "USDRUB"
                 if key in data_currency["quotes"]:
                     currency_data.append(
                         {
@@ -165,18 +162,14 @@ def fetch_currency_and_stock_data(user_settings: str) -> Tuple[List, List]:
         data_stocks = response_stocks.json()
         if "data" in data_stocks:
             for stock in data_stocks["data"]:
-                stock_data.append(
-                    {"stock": stock["symbol"], "price": float(stock["close"])}
-                )
+                stock_data.append({"stock": stock["symbol"], "price": float(stock["close"])})
     except requests.RequestException as e:
         logging.error(f"Ошибка при запросе акций: {e}")
 
     return currency_data, stock_data
 
 
-def filter_transactions_by_month(
-    transactions: pd.DataFrame, date: Optional[str] = None
-) -> pd.DataFrame:
+def filter_transactions_by_month(transactions: pd.DataFrame, date: Optional[str] = None) -> pd.DataFrame:
     """
     Фильтрует транзакции за последние три месяца от заданной даты.
 
@@ -195,15 +188,16 @@ def filter_transactions_by_month(
         start_date = end_date - timedelta(days=90)
     except ValueError:
         logging.error("Неверный формат даты.")
-        return pd.DataFrame()
+        return pd.DataFrame(columns=transactions.columns)
 
-    transactions["Дата платежа"] = pd.to_datetime(
-        transactions["Дата платежа"], errors="coerce", dayfirst=True
-    )
+    transactions = transactions.copy()
+    transactions["Дата платежа"] = pd.to_datetime(transactions["Дата платежа"], errors="coerce", dayfirst=True)
 
     filtered_transactions = transactions[
-        (transactions["Дата платежа"] >= start_date)
-        & (transactions["Дата платежа"] <= end_date)
+        (transactions["Дата платежа"] >= start_date) & (transactions["Дата платежа"] <= end_date)
     ]
+
+    if filtered_transactions.empty:
+        return pd.DataFrame(columns=transactions.columns)
 
     return filtered_transactions

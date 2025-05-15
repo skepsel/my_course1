@@ -38,9 +38,7 @@ DAYS_RU = {
 
 
 @save_to_jsonl("data/reports.jsonl")
-def calculate_average_spending_by_weekday(
-    transactions: pd.DataFrame, date: Optional[str] = None
-) -> pd.DataFrame:
+def calculate_average_spending_by_weekday(transactions: pd.DataFrame, date: Optional[str] = None) -> pd.DataFrame:
     """
     Функция принимает DataFrame и дату (если не передается — берет текущую дату),
     считает средние траты за день недели за последние три месяца от указанной даты,
@@ -55,19 +53,13 @@ def calculate_average_spending_by_weekday(
     """
     filtered_data = filter_transactions_by_month(transactions, date)
     result = (
-        filtered_data.groupby("Дата платежа", as_index=False)[
-            "Сумма операции с округлением"
-        ]
+        filtered_data.groupby("Дата платежа", as_index=False)["Сумма операции с округлением"]
         .mean()
         .rename(columns={"Сумма операции с округлением": "Средняя трата"})
     )
-    result["Дата платежа"] = pd.to_datetime(
-        result["Дата платежа"], errors="coerce", dayfirst=True
-    )
+    result["Дата платежа"] = pd.to_datetime(result["Дата платежа"], errors="coerce", dayfirst=True)
     result["Дата платежа"] = result["Дата платежа"].dt.strftime("%Y-%m-%d")
     result["Средняя трата"] = result["Средняя трата"].round(2)
-    result["День недели"] = result["Дата платежа"].apply(
-        lambda x: DAYS_RU[pd.to_datetime(x).weekday()]
-    )
+    result["День недели"] = result["Дата платежа"].apply(lambda x: DAYS_RU[pd.to_datetime(x).weekday()])
     result = result[["Дата платежа", "День недели", "Средняя трата"]]
     return result.iloc[::-1].reset_index(drop=True)

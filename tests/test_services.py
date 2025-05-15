@@ -26,9 +26,7 @@ def test_filter_transactions_by_category_or_description(valid_data):
     result = filter_transactions_by_category_or_description(valid_data, "еда")
 
     # Проверяем, что результат является списком
-    assert isinstance(
-        result, list
-    ), f"Функция должна возвращать список, но получен {type(result)}"
+    assert isinstance(result, list), f"Функция должна возвращать список, но получен {type(result)}"
 
     # Проверяем, что результат содержит транзакцию с категорией "еда"
     assert any(

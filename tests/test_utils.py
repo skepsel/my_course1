@@ -176,12 +176,17 @@ def test_top5_tran_less_than_five():
 
 # Тесты для функции currency_rates
 @patch("src.utils.requests.get")
-def test_currency_rates(mock_get):
+@patch(
+    "builtins.open",
+    new_callable=mock_open,
+    read_data='{"user_currencies": ["USD", "EUR"], "user_stocks": ["AAPL", "GOOGL"]}',
+)
+def test_currency_rates(mock_open, mock_get):
     mock_response_currency = MagicMock()
     mock_response_currency.json.return_value = {
         "quotes": {
             "USDRUB": 75.0,
-            "EURRUB": 85.0,
+            "USDEUR": 85.0,
         }
     }
     mock_response_stocks = MagicMock()

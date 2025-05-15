@@ -31,9 +31,7 @@ def test_calculate_average_spending_by_weekday(valid_datetime):
     result = calculate_average_spending_by_weekday(df, valid_datetime)
 
     # Проверяем, что результат является DataFrame
-    assert isinstance(
-        result, pd.DataFrame
-    ), f"Функция должна возвращать DataFrame, но получен {type(result)}"
+    assert isinstance(result, pd.DataFrame), f"Функция должна возвращать DataFrame, но получен {type(result)}"
 
     # Проверяем, что DataFrame не пустой
     assert not result.empty, "DataFrame не должен быть пустым"

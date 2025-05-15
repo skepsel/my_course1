@@ -72,9 +72,5 @@ def test_write_json_gl(mock_dependencies):
     assert result_dict["stock_prices"][0]["price"] == 172.5
 
     # Дополнительная проверка на тип данных результата
-    assert isinstance(
-        result, str
-    ), f"Expected result to be a string, but got {type(result)}"
-    assert isinstance(
-        result_dict, dict
-    ), f"Expected result_dict to be a dict, but got {type(result_dict)}"
+    assert isinstance(result, str), f"Expected result to be a string, but got {type(result)}"
+    assert isinstance(result_dict, dict), f"Expected result_dict to be a dict, but got {type(result_dict)}"
